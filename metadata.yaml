@@ -1,7 +1,7 @@
-name: astrbot_plugin_zt # 这是你的插件的唯一识别名。
+name: astrbot_plugin_zt
 display_name: 简易状态
-desc: 简易版服务器状态插件 # 插件简短描述
-help:   # 插件的帮助信息
-version: v1.0.2 # 插件版本号。格式：v1.1.1 或者 v1.1
-author: Zhalslar # 作者
-repo: https://github.com/Zhalslar/astrbot_plugin_zt # 插件的仓库地址
+desc: 简易版服务器状态插件
+help: 略
+version: v1.0.2
+author: Zhalslar
+repo: https://github.com/Zhalslar/astrbot_plugin_zt

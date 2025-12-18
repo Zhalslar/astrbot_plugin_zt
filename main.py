@@ -1,19 +1,15 @@
 
 import time
+
 import psutil
+
 from astrbot.api.event import filter
-from astrbot.api.star import Context, Star, register
+from astrbot.api.star import Context, Star
 from astrbot.core.config.astrbot_config import AstrBotConfig
 from astrbot.core.platform.astr_message_event import AstrMessageEvent
 
-@register(
-    "astrbot_plugin_zt",
-    "Zhalslar",
-    "简易版服务器状态插件",
-    "1.0.1",
-    "https://github.com/Zhalslar/astrbot_plugin_zt",
-)
-class PokeproPlugin(Star):
+
+class StatusPlugin(Star):
     def __init__(self, context: Context, config: AstrBotConfig):
         super().__init__(context)
         self.only_admin = config.get("only_admin", False)
