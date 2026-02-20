@@ -101,18 +101,17 @@ class ConfigNode:
 
 class PluginConfig(ConfigNode):
     only_admin: bool
-    enable_list: list[str]
+    zhuangtai_show_list: list[str]
 
     def __init__(self, config: AstrBotConfig, context: Context):
         super().__init__(config)
-        self.enable_items = self._parse_enable_items(self.enable_list)
+        self.enable_items = self._parse_enable_items(self.zhuangtai_show_list)
 
-    def _parse_enable_items(
-        self, enable_items: list[str] | set[str]
-    ) -> set[DisplayItem]:
+    def _parse_enable_items(self, enable_items: list[str]) -> set[DisplayItem]:
         parsed_items: set[DisplayItem] = set()
-        for item in enable_items:
+        for item_str in enable_items:
             try:
+                item = item_str.split("(", 1)[0].strip()
                 parsed_items.add(DisplayItem(item))
             except ValueError:
                 logger.warning(

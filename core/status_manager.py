@@ -1,6 +1,4 @@
-﻿import time
-
-import psutil
+﻿import psutil
 
 from astrbot.api import logger
 
@@ -24,7 +22,9 @@ class StatusManager:
 
     def get_simple_status_text(self) -> str:
         lines = [
-            DisplayItem.CPU_USAGE.format_line(self._get_cpu_usage(samples=1, interval=1)),
+            DisplayItem.CPU_USAGE.format_line(
+                self._get_cpu_usage(samples=1, interval=1)
+            ),
             DisplayItem.MEMORY_USAGE.format_line(self._get_memory_usage()),
         ]
         return "\n".join(lines)
@@ -35,7 +35,13 @@ class StatusManager:
             if not self.cfg.is_enabled_item(item):
                 continue
             getter = getattr(self, getter_name)
-            sys_info_lines.append(item.format_line(getter()))
+            try:
+                sys_info_lines.append(item.format_line(getter()))
+            except (PermissionError, psutil.AccessDenied, OSError) as err:
+                logger.warning(
+                    f"Failed to read status item {item.value}, skipped: {err}"
+                )
+                continue
 
         return (
             "\n".join(sys_info_lines)
@@ -48,7 +54,6 @@ class StatusManager:
         for _ in range(samples):
             cpu_usage = psutil.cpu_percent(interval=interval)
             total_usage += cpu_usage
-            time.sleep(interval)
         average_usage = total_usage / samples
         return f"{average_usage:.2f}%"
 
@@ -68,36 +73,15 @@ class StatusManager:
         return str(len(psutil.pids()))
 
     def _get_network_sent(self) -> str:
-        try:
-            net_info = psutil.net_io_counters()
-            return self._convert_to_readable(net_info.bytes_sent)
-        except (PermissionError, psutil.AccessDenied, OSError) as err:
-            logger.warning(
-                "[astrbot_plugin_zt] Failed to read network sent stats, skipped: %s",
-                err,
-            )
-            return "unavailable"
+        net_info = psutil.net_io_counters()
+        return self._convert_to_readable(net_info.bytes_sent)
 
     def _get_network_recv(self) -> str:
-        try:
-            net_info = psutil.net_io_counters()
-            return self._convert_to_readable(net_info.bytes_recv)
-        except (PermissionError, psutil.AccessDenied, OSError) as err:
-            logger.warning(
-                "[astrbot_plugin_zt] Failed to read network recv stats, skipped: %s",
-                err,
-            )
-            return "unavailable"
+        net_info = psutil.net_io_counters()
+        return self._convert_to_readable(net_info.bytes_recv)
 
     def _get_network_connections(self) -> str:
-        try:
-            return str(len(psutil.net_connections()))
-        except (PermissionError, psutil.AccessDenied, OSError) as err:
-            logger.warning(
-                "[astrbot_plugin_zt] Failed to read network connections, skipped: %s",
-                err,
-            )
-            return "unavailable"
+        return str(len(psutil.net_connections()))
 
     def _convert_to_readable(self, value: int) -> str:
         units = ["B", "KB", "MB", "GB"]
