@@ -2,6 +2,6 @@ name: astrbot_plugin_zt
 display_name: 简易状态
 desc: 简易版服务器状态插件
 help: 略
-version: v1.0.2
+version: v1.0.3
 author: Zhalslar
 repo: https://github.com/Zhalslar/astrbot_plugin_zt
