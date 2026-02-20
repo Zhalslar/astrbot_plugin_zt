@@ -6,26 +6,30 @@
         "default": false
     },
     "zhuangtai_show_list": {
-        "description": "状态-显示项",
+        "description": "状态显示项",
         "hint": "使用“状态”命令的显示项",
         "type": "list",
         "options": [
+            "os_info(系统信息)",
+            "hostname(主机名称)",
             "cpu_usage(CPU占用)",
             "memory_usage(内存占用)",
+            "swap_usage(交换内存)",
             "disk_usage(磁盘占用)",
             "network_sent(网络发送)",
             "network_recv(网络接收)",
             "process_count(进程数量)",
-            "network_connections(连接数量)"
+            "network_connections(连接数量)",
+            "uptime(开机时长)"
         ],
         "default": [
             "cpu_usage(CPU占用)",
             "memory_usage(内存占用)",
             "disk_usage(磁盘占用)",
+            "swap_usage(交换内存)",
             "network_sent(网络发送)",
             "network_recv(网络接收)",
-            "process_count(进程数量)",
-            "network_connections(连接数量)"
+            "uptime(开机时长)"
         ]
     }
 }

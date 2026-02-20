@@ -19,12 +19,13 @@ class StatusPlugin(Star):
         """获取并显示当前系统状态（精简版）"""
         if self.cfg.only_admin and not event.is_admin():
             return
-        yield event.plain_result(self.status_manager.get_simple_status_text())
+        sys_info = self.status_manager.get_zt_text()
+        yield event.plain_result(sys_info)
 
     @filter.command("状态")
-    async def get_status(self, event: AstrMessageEvent):
+    async def get_zhuangtai(self, event: AstrMessageEvent):
         """获取并显示当前系统状态"""
         if self.cfg.only_admin and not event.is_admin():
             return
-        sys_info = await self.status_manager.get_status_text()
+        sys_info = await self.status_manager.get_zhuangtai_text()
         yield event.plain_result(sys_info)
