@@ -4,5 +4,37 @@
         "type": "bool",
         "hint": "",
         "default": false
+    },
+    "enable_list": {
+        "description": "启用的显示项",
+        "hint": "",
+        "type": "list",
+        "options": [
+            "cpu_usage",
+            "memory_usage",
+            "disk_usage",
+            "network_sent",
+            "network_recv",
+            "process_count",
+            "network_connections"
+        ],
+        "labels": [
+            "CPU占用",
+            "内存占用",
+            "磁盘占用",
+            "网络发送",
+            "网络接收",
+            "进程数量",
+            "连接数量"
+        ],
+        "default": [
+            "cpu_usage",
+            "memory_usage",
+            "disk_usage",
+            "network_sent",
+            "network_recv",
+            "process_count",
+            "network_connections"
+        ]
     }
 }
