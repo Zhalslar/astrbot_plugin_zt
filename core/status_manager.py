@@ -73,11 +73,13 @@ class StatusManager:
         total_memory_gb = memory_info.total / (1024**3)
         return f"{used_memory_gb:.2f}G/{total_memory_gb:.1f}G"
 
-    def _get_swap_usage(self) -> str:
+    def _get_swap_usage(self, as_percent: bool = False) -> str:
         swap_info = psutil.swap_memory()
+        if as_percent:
+            return f"{swap_info.percent:.2f}%"
         used_swap_gb = swap_info.used / (1024**3)
         total_swap_gb = swap_info.total / (1024**3)
-        return f"{used_swap_gb:.2f}G/{total_swap_gb:.1f}G ({swap_info.percent:.2f}%)"
+        return f"{used_swap_gb:.2f}G/{total_swap_gb:.1f}G"
 
     def _get_disk_usage(self, path: str = "/") -> str:
         disk_info = psutil.disk_usage(path)
