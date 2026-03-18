@@ -52,7 +52,7 @@ _✨ 简易版状态插件 ✨_
 | `network_traffic` | 网络流量 | `↑1.2G ↓5.6G` |
 | `process_count` | 进程数量 | `128` |
 | `network_connections` | 连接数量 | `45` |
-| `uptime` | 开机时长 | `15天3小时24分` |
+| `uptime` | 开机时长 | `15天3时24分` |
 
 ### 示例图
 
