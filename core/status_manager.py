@@ -81,7 +81,9 @@ class StatusManager:
         for _ in range(samples):
             total_usage += psutil.cpu_percent(interval=interval)
         average_usage = total_usage / samples
-        return f"{average_usage:.2f}%"
+        physical_cores = psutil.cpu_count(logical=False) or 0
+        logical_threads = psutil.cpu_count(logical=True) or 0
+        return f"{average_usage:.2f}%({physical_cores}C/{logical_threads}T)"
 
     def _get_memory_usage(self, as_percent: bool = False) -> str:
         memory_info = psutil.virtual_memory()
