@@ -8,8 +8,8 @@ class DisplayItem(str, Enum):
     MEMORY_USAGE = "memory_usage"
     SWAP_USAGE = "swap_usage"
     DISK_USAGE = "disk_usage"
-    NETWORK_SENT = "network_sent"
-    NETWORK_RECV = "network_recv"
+    NETWORK_USAGE = "network_usage"
+    NETWORK_TRAFFIC = "network_traffic"
     PROCESS_COUNT = "process_count"
     NETWORK_CONNECTIONS = "network_connections"
     UPTIME = "uptime"
@@ -22,8 +22,8 @@ class DisplayItem(str, Enum):
             self.MEMORY_USAGE: "内存占用",
             self.SWAP_USAGE: "交换内存",
             self.DISK_USAGE: "磁盘占用",
-            self.NETWORK_SENT: "网络发送",
-            self.NETWORK_RECV: "网络接收",
+            self.NETWORK_USAGE: "网络占用",
+            self.NETWORK_TRAFFIC: "网络流量",
             self.PROCESS_COUNT: "进程数量",
             self.NETWORK_CONNECTIONS: "连接数量",
             self.UPTIME: "开机时长",
