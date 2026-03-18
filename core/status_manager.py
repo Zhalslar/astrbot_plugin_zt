@@ -1,5 +1,7 @@
-﻿import datetime
+import datetime
 import platform
+import time
+from collections.abc import Callable
 
 import psutil
 
@@ -10,22 +12,23 @@ from .model import DisplayItem
 
 
 class StatusManager:
-    STATUS_GETTERS: tuple[tuple[DisplayItem, str], ...] = (
-        (DisplayItem.OS_INFO, "_get_os_info"),
-        (DisplayItem.HOSTNAME, "_get_hostname"),
-        (DisplayItem.CPU_USAGE, "_get_cpu_usage"),
-        (DisplayItem.MEMORY_USAGE, "_get_memory_usage"),
-        (DisplayItem.SWAP_USAGE, "_get_swap_usage"),
-        (DisplayItem.DISK_USAGE, "_get_disk_usage"),
-        (DisplayItem.PROCESS_COUNT, "_get_process_count"),
-        (DisplayItem.NETWORK_SENT, "_get_network_sent"),
-        (DisplayItem.NETWORK_RECV, "_get_network_recv"),
-        (DisplayItem.NETWORK_CONNECTIONS, "_get_network_connections"),
-        (DisplayItem.UPTIME, "_get_uptime"),
-    )
-
     def __init__(self, config: PluginConfig):
         self.cfg = config
+        self.status_getters: tuple[tuple[DisplayItem, Callable[[], str]], ...] = (
+            (DisplayItem.OS_INFO, self._get_os_info),
+            (DisplayItem.HOSTNAME, self._get_hostname),
+            (DisplayItem.CPU_USAGE, self._get_cpu_usage),
+            (DisplayItem.MEMORY_USAGE, self._get_memory_usage),
+            (DisplayItem.SWAP_USAGE, self._get_swap_usage),
+            (DisplayItem.DISK_USAGE, self._get_disk_usage),
+            (DisplayItem.UPLOAD_USAGE, self._get_upload_usage),
+            (DisplayItem.DOWNLOAD_USAGE, self._get_download_usage),
+            (DisplayItem.PROCESS_COUNT, self._get_process_count),
+            (DisplayItem.NETWORK_SENT, self._get_network_sent),
+            (DisplayItem.NETWORK_RECV, self._get_network_recv),
+            (DisplayItem.NETWORK_CONNECTIONS, self._get_network_connections),
+            (DisplayItem.UPTIME, self._get_uptime),
+        )
 
     def get_zt_text(self) -> str:
         lines = [
@@ -40,13 +43,25 @@ class StatusManager:
 
     async def get_zhuangtai_text(self) -> str:
         sys_info_lines: list[str] = []
-        for item, getter_name in self.STATUS_GETTERS:
+        dynamic_status: dict[DisplayItem, str] = {}
+        dynamic_items = {
+            DisplayItem.CPU_USAGE,
+            DisplayItem.UPLOAD_USAGE,
+            DisplayItem.DOWNLOAD_USAGE,
+        }
+        if any(self.cfg.is_enabled_item(item) for item in dynamic_items):
+            dynamic_status = self._get_dynamic_status(samples=5, interval=0.5)
+
+        for item, getter in self.status_getters:
             if not self.cfg.is_enabled_item(item):
                 continue
 
-            getter = getattr(self, getter_name)
             try:
-                sys_info_lines.append(item.format_line(getter()))
+                if item in dynamic_status:
+                    value = dynamic_status[item]
+                else:
+                    value = getter()
+                sys_info_lines.append(item.format_line(value))
             except Exception as err:
                 logger.warning(
                     f"Failed to read status item {item.value}, skipped: {err}"
@@ -57,6 +72,25 @@ class StatusManager:
             if sys_info_lines
             else DisplayItem.empty_status_text()
         )
+
+    def _get_dynamic_status(
+        self, samples: int = 1, interval: float = 1.0
+    ) -> dict[DisplayItem, str]:
+        net_before = psutil.net_io_counters()
+        cpu_usage = self._get_cpu_usage(samples=samples, interval=interval)
+        net_after = psutil.net_io_counters()
+        duration = max(samples * interval, 0.001)
+        bytes_sent_per_second = (
+            max(net_after.bytes_sent - net_before.bytes_sent, 0) / duration
+        )
+        bytes_recv_per_second = (
+            max(net_after.bytes_recv - net_before.bytes_recv, 0) / duration
+        )
+        return {
+            DisplayItem.CPU_USAGE: cpu_usage,
+            DisplayItem.UPLOAD_USAGE: self._format_speed(bytes_sent_per_second),
+            DisplayItem.DOWNLOAD_USAGE: self._format_speed(bytes_recv_per_second),
+        }
 
     def _get_cpu_usage(self, samples: int = 5, interval: float = 0.5) -> str:
         total_usage = 0.0
@@ -86,6 +120,14 @@ class StatusManager:
         used_disk_gb = disk_info.used / (1024**3)
         total_disk_gb = disk_info.total / (1024**3)
         return f"{used_disk_gb:.2f}G/{total_disk_gb:.1f}G"
+
+    def _get_upload_usage(self) -> str:
+        upload_speed, _ = self._get_network_speed()
+        return upload_speed
+
+    def _get_download_usage(self) -> str:
+        _, download_speed = self._get_network_speed()
+        return download_speed
 
     def _get_process_count(self) -> str:
         return str(len(psutil.pids()))
@@ -118,6 +160,17 @@ class StatusManager:
             return f"{hours}h {minutes}m"
         return f"{minutes}m"
 
+    def _get_network_speed(
+        self, samples: int = 1, interval: float = 1.0
+    ) -> tuple[str, str]:
+        net_before = psutil.net_io_counters()
+        time.sleep(samples * interval)
+        net_after = psutil.net_io_counters()
+        duration = max(samples * interval, 0.001)
+        upload_speed = max(net_after.bytes_sent - net_before.bytes_sent, 0) / duration
+        download_speed = max(net_after.bytes_recv - net_before.bytes_recv, 0) / duration
+        return self._format_speed(upload_speed), self._format_speed(download_speed)
+
     def _convert_to_readable(self, value: int) -> str:
         units = ["B", "KB", "MB", "GB", "TB"]
         unit_index = 0
@@ -126,3 +179,6 @@ class StatusManager:
             display_value /= 1024
             unit_index += 1
         return f"{display_value:.2f} {units[unit_index]}"
+
+    def _format_speed(self, value: float) -> str:
+        return f"{self._convert_to_readable(int(value))}/s"
