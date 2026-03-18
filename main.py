@@ -1,4 +1,3 @@
-﻿
 from astrbot.api.event import filter
 from astrbot.api.star import Context, Star
 from astrbot.core.config.astrbot_config import AstrBotConfig
@@ -19,7 +18,7 @@ class StatusPlugin(Star):
         """获取并显示当前系统状态（精简版）"""
         if self.cfg.only_admin and not event.is_admin():
             return
-        sys_info = self.status_manager.get_zt_text()
+        sys_info = await self.status_manager.get_zt_text()
         yield event.plain_result(sys_info)
 
     @filter.command("状态")
