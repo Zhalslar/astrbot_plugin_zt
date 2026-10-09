@@ -100,7 +100,6 @@ class ConfigNode:
 
 
 class PluginConfig(ConfigNode):
-    only_admin: bool
     zhuangtai_show_list: list[str]
 
     def __init__(self, config: AstrBotConfig, context: Context):

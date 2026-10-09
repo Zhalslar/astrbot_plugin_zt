@@ -1,10 +1,4 @@
 {
-    "only_admin": {
-        "description": "仅管理员可用本插件命令",
-        "type": "bool",
-        "hint": "",
-        "default": false
-    },
     "zhuangtai_show_list": {
         "description": "状态显示项",
         "hint": "使用“状态”命令的显示项",
