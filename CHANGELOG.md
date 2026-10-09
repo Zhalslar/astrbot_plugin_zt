@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.1.1
+
+- 移除配置项 `only_admin`，直接使用 `@filter.permission_type(PermissionType.ADMIN)` 装饰器限定管理员权限。
+
 ## v1.1.0
 
 为服务器状态插件新增可配置的网络使用情况与流量显示项，并将状态文本生成改为异步执行。
