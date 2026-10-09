@@ -2,6 +2,7 @@ from astrbot.api.star import Context, Star
 from astrbot.core.config.astrbot_config import AstrBotConfig
 from astrbot.core.platform.astr_message_event import AstrMessageEvent
 from astrbot.core.star.filter.permission import PermissionType
+from astrbot.api.event import filter
 
 from .core.config import PluginConfig
 from .core.status_manager import StatusManager
